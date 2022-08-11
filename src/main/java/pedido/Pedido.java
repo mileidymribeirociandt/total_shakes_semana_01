@@ -1,20 +1,24 @@
 package pedido;
 
+import ingredientes.Adicional;
+import produto.TipoTamanho;
+
 import java.util.ArrayList;
+import java.util.List;
 
 public class Pedido{
 
     private int id;
-    private  ArrayList<ItemPedido> itens;
+    private List<ItemPedido> itens;
     private Cliente cliente;
 
-    public Pedido(int id, ArrayList<ItemPedido> itens,Cliente cliente){
+    public Pedido(int id, List<ItemPedido> itens,Cliente cliente){
         this.id = id;
         this.itens=itens;
         this.cliente=cliente;
     }
 
-    public ArrayList<ItemPedido> getItens() {
+    public List<ItemPedido> getItens() {
         return itens;
     }
 
@@ -28,22 +32,50 @@ public class Pedido{
 
     public double calcularTotal(Cardapio cardapio){
         double total= 0;
-        //TODO
+        itens.stream().mapToDouble(itemPedido -> {
+            double subTotal = 0.0;
+            subTotal += cardapio.buscarPreco(itemPedido.getShake().getTopping());
+            subTotal += TipoTamanho.getPreco(cardapio.buscarPreco(itemPedido.getShake().getBase()), itemPedido.getShake().getTipoTamanho());
+            subTotal += cardapio.buscarPreco(itemPedido.getShake().getFruta());
+
+            if(itemPedido.getShake().getAdicionais() == null){
+                return subTotal;
+            }
+
+            for(Adicional adicional : itemPedido.getShake().getAdicionais()){
+                subTotal += cardapio.buscarPreco(adicional);
+            }
+
+            return subTotal;
+        });
         return total;
     }
 
     public void adicionarItemPedido(ItemPedido itemPedidoAdicionado){
-        //TODO
+        if(itens == null){
+            throw new NullPointerException("Can't add new ItemPedido to null list");
+        }
+        itens.stream()
+                .filter(itemPedido -> itemPedido.equals(itemPedidoAdicionado))
+                .findFirst()
+                .ifPresentOrElse(itemPedido -> itemPedido.updateQuantidade(itemPedidoAdicionado.getQuantidade()),
+                        () ->{itens.add(itemPedidoAdicionado);});
     }
 
     public boolean removeItemPedido(ItemPedido itemPedidoRemovido) {
-        //substitua o true por uma condição
-        if (true) {
-            //TODO
-        } else {
-            throw new IllegalArgumentException("Item nao existe no pedido.");
-        }
-        return false;
+        itens.stream()
+                .filter(itemPedido -> itemPedido.equals(itemPedidoRemovido))
+                .findFirst()
+                .ifPresentOrElse(
+                        itemPedido -> {
+                            itemPedido.updateQuantidade(-1);
+                            if(itemPedido.getQuantidade() <=0){
+                                itens.remove(itemPedidoRemovido);
+                            }
+                        },
+                        () -> {throw new IllegalArgumentException("Item nao existe no pedido.");}
+                );
+        return true;
     }
 
     @Override
