@@ -16,10 +16,16 @@ public class Cardapio {
     }
 
     public void adicionarIngrediente(Ingrediente ingrediente,Double preco){
+        if(preco <= 0){
+            throw new IllegalArgumentException("Preco invalido.");
+        }
         precos.put(ingrediente, preco);
     }
 
     public boolean atualizarIngrediente(Ingrediente ingrediente,Double preco){
+        if(preco <= 0){
+            throw new IllegalArgumentException("Preco invalido.");
+        }
         if(precos.keySet().contains(ingrediente)){
             precos.put(ingrediente, preco);
             return true;
@@ -43,7 +49,9 @@ public class Cardapio {
         if(precos.keySet().contains(ingrediente)){
             return precos.get(ingrediente);
         }
-        return 0.0;
+        else {
+            throw new IllegalArgumentException("Ingrediente nao existe no cardapio.");
+        }
     }
 
     @Override
