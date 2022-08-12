@@ -24,7 +24,6 @@ public class Main {
         System.out.println("Digite o minuto de serializacao dos pedidos");
         int minuto = scan.nextInt();
         mostrarTodosPedidos(application.desserializarPedidos(LocalDate.now(), minuto));
-        System.out.println("Status da desserialização" + application.desserializarPedidos(LocalDate.now(), minuto).equals(application.getPedidos()));
     }
     static void mostrarTodosPedidos(Iterator<Pedido> pedidoIterator){
         while (pedidoIterator.hasNext()){
