@@ -1,10 +1,12 @@
 package pedido;
 
 import ingredientes.Adicional;
+
+import java.io.*;
 import java.util.List;
 
-public class Pedido {
-
+public class Pedido implements Serializable {
+    private static final long serialVersionUID = 1L;
     private int id;
     private List<ItemPedido> itens;
     private Cliente cliente;
@@ -61,6 +63,31 @@ public class Pedido {
             throw new IllegalArgumentException("Item nao existe no pedido.");
         });
         return true;
+    }
+
+    public void serializarPedido(){
+        try(FileOutputStream fileOutputStream = new FileOutputStream("pedido"+id+".txt");
+            ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);){
+            objectOutputStream.writeObject(this);
+        }
+        catch (IOException exception){
+            exception.printStackTrace();
+        }
+    }
+
+    public static Pedido desserializarPedido(int id){
+        Pedido pedido = null;
+        try(FileInputStream fileInputStream = new FileInputStream("pedido"+id+".txt");
+            ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);){
+            pedido = (Pedido)objectInputStream.readObject();
+        }
+        catch (IOException exception){
+            exception.printStackTrace();
+        }
+        catch (ClassNotFoundException exception){
+            exception.printStackTrace();
+        }
+        return pedido;
     }
 
     @Override

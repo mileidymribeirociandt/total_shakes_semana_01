@@ -1,6 +1,9 @@
 package ingredientes;
 
-public class Topping implements Adicional,Comparable<Ingrediente> {
+import java.io.Serializable;
+
+public class Topping implements Adicional,Comparable<Ingrediente>, Serializable {
+    private static final long serialVersionUID = 1L;
     private TipoTopping tipoTopping;
 
     public Topping(TipoTopping tipoTopping) {

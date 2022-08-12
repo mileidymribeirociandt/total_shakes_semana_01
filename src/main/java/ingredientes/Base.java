@@ -1,6 +1,9 @@
 package ingredientes;
 
-public class Base implements Ingrediente,Comparable<Ingrediente>{
+import java.io.Serializable;
+
+public class Base implements Ingrediente,Comparable<Ingrediente>, Serializable {
+    private static final long serialVersionUID = 1L;
 
     private TipoBase tipoBase;
 

@@ -1,6 +1,9 @@
 package ingredientes;
 
-public class Fruta  implements Adicional,Comparable<Ingrediente>{
+import java.io.Serializable;
+
+public class Fruta  implements Adicional,Comparable<Ingrediente>, Serializable {
+     private static final long serialVersionUID = 1L;
      private TipoFruta tipoFruta;
 
      public Fruta(TipoFruta tipoFruta) {
