@@ -106,11 +106,11 @@ public class ApplicationImpl implements Application {
 
     private void initializeOpcoesAdicionaisTable(){
         opcoesAdicionais = new HashMap<>(5);
-        opcoesAdicionais.put(1, new Topping(TipoTopping.Aveia));
-        opcoesAdicionais.put(2, new Topping(TipoTopping.Chocolate));
-        opcoesAdicionais.put(3, new Topping(TipoTopping.Mel));
-        opcoesAdicionais.put(4, new Fruta(TipoFruta.Banana));
-        opcoesAdicionais.put(5, new Fruta(TipoFruta.Morango));
+        opcoesAdicionais.put(1, new Topping(TipoTopping.AVEIA));
+        opcoesAdicionais.put(2, new Topping(TipoTopping.CHOCOLATE));
+        opcoesAdicionais.put(3, new Topping(TipoTopping.MEL));
+        opcoesAdicionais.put(4, new Fruta(TipoFruta.BANANA));
+        opcoesAdicionais.put(5, new Fruta(TipoFruta.MORANGO));
     }
 
     private Supplier<Base> escolherBase = () -> {
@@ -122,9 +122,9 @@ public class ApplicationImpl implements Application {
             base = scan.nextInt();
         }
         if(base == 1){
-            return new Base(TipoBase.Iorgute);
+            return new Base(TipoBase.IOGURTE);
         }
-        return new Base(TipoBase.Sorvete);
+        return new Base(TipoBase.SORVETE);
     };
 
     private Supplier<Topping> escolherTopping = () -> {
@@ -136,12 +136,12 @@ public class ApplicationImpl implements Application {
             topping = scan.nextInt();
         }
         if(topping == 1){
-            return new Topping(TipoTopping.Aveia);
+            return new Topping(TipoTopping.AVEIA);
         }
         if(topping == 2){
-            return new Topping(TipoTopping.Chocolate);
+            return new Topping(TipoTopping.CHOCOLATE);
         }
-        return new Topping(TipoTopping.Mel);
+        return new Topping(TipoTopping.MEL);
     };
 
     private Supplier<Fruta> escolherFruta = () -> {
@@ -153,9 +153,9 @@ public class ApplicationImpl implements Application {
             fruta = scan.nextInt();
         }
         if(fruta == 1){
-            return new Fruta(TipoFruta.Banana);
+            return new Fruta(TipoFruta.BANANA);
         }
-        return new Fruta(TipoFruta.Morango);
+        return new Fruta(TipoFruta.MORANGO);
     };
 
     private Supplier<List<Adicional>> escolherAdicionais = () ->{
