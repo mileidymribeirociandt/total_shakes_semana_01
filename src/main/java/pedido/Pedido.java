@@ -1,6 +1,9 @@
 package pedido;
 
+import exception.IngredientNotFoundException;
+import exception.ItemNotFoundException;
 import ingredientes.Adicional;
+import produto.TipoTamanho;
 
 import java.io.*;
 import java.util.List;
@@ -32,7 +35,7 @@ public class Pedido implements Serializable {
     public double calcularTotal(Cardapio cardapio) {
         var total = 0;
         total += itens.stream().map(itemPedido -> {
-            double subTotal = itemPedido.getShake().getTipoTamanho().getPreco(cardapio.buscarPreco(itemPedido.getShake().getBase()));
+            double subTotal = TipoTamanho.getPreco(itemPedido.getShake().getTipoTamanho(), cardapio.buscarPreco(itemPedido.getShake().getBase()));
             if (itemPedido.getShake().getAdicionais() == null || itemPedido.getShake().getAdicionais().isEmpty()) {
                 return subTotal * itemPedido.getQuantidade();
             }
@@ -65,8 +68,9 @@ public class Pedido implements Serializable {
                         if (itemPedido.getQuantidade() <= 0) {
                             itens.remove(itemPedidoRemovido);
                         }
-                    }, () -> {
-                        throw new IllegalArgumentException("Item nao existe no pedido.");
+                    },
+                    () -> {
+                        throw new ItemNotFoundException("Item nao existe no pedido.");
                     }
                 );
         return true;

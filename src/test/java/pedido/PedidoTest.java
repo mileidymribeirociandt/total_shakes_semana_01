@@ -1,18 +1,16 @@
 package pedido;
 
+import exception.ItemNotFoundException;
 import ingredientes.*;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.function.Executable;
 import produto.Shake;
 import produto.TipoTamanho;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class PedidoTest{
@@ -42,7 +40,8 @@ public class PedidoTest{
     }
 
     @Test
-    void test_adicionarItemPedido_properly(){
+    @DisplayName("Test adding new item on pedido")
+    void shouldAddItemOnPedido(){
         Shake shake = new Shake(new Base(TipoBase.SORVETE),
                 new Fruta(TipoFruta.MORANGO),
                 new Topping(TipoTopping.MEL),
@@ -68,7 +67,8 @@ public class PedidoTest{
     }
 
     @Test
-    void test_adicionarItemPedido_itemPedidoDuplicado(){
+    @DisplayName("Test updating item quantity on pedido")
+    void shouldUpdateItemQuantityOnPedido(){
         Shake shake = new Shake(new Base(TipoBase.SORVETE),
                 new Fruta(TipoFruta.MORANGO),
                 new Topping(TipoTopping.MEL),
@@ -93,7 +93,8 @@ public class PedidoTest{
     }
 
     @Test
-    void test_adicionarItemPedido_itemPedidoDiferentes(){
+    @DisplayName("Test different items on pedido")
+    void shouldAddDifferentItemsOnPedido(){
         Shake shake = new Shake(new Base(TipoBase.SORVETE),
                 new Fruta(TipoFruta.MORANGO),
                 new Topping(TipoTopping.MEL),
@@ -120,7 +121,8 @@ public class PedidoTest{
     }
 
     @Test
-    void test_removerItemPedido_properly(){
+    @DisplayName("Test removing item of pedido")
+    void shouldRemoveItemOfPedido(){
         Shake shake = new Shake(new Base(TipoBase.SORVETE),
                 new Fruta(TipoFruta.MORANGO),
                 new Topping(TipoTopping.MEL),
@@ -137,7 +139,8 @@ public class PedidoTest{
     }
 
     @Test
-    void test_removerItemPedido_quantidadeMaiorQue1(){
+    @DisplayName("Tem removing item of pedido when quantity is bigger than one")
+    void shouldRemoveOneUnitOfItem_whenItemQuantityIsBiggerThanOne(){
         Shake shake = new Shake(new Base(TipoBase.SORVETE),
                 new Fruta(TipoFruta.MORANGO),
                 new Topping(TipoTopping.MEL),
@@ -163,7 +166,8 @@ public class PedidoTest{
     }
 
     @Test
-    void test_removerItemPedido_quantidadeIgualA1(){
+    @DisplayName("Test removing item of pedido when quantity is one")
+    void shouldRemoveOneUnitOfItem_whenItemQuantityIsOne(){
         Shake shake = new Shake(new Base(TipoBase.SORVETE),
                 new Fruta(TipoFruta.MORANGO),
                 new Topping(TipoTopping.MEL),
@@ -188,7 +192,8 @@ public class PedidoTest{
     }
 
     @Test
-    void test_removerItemPedido_exception_itemNaoExiste(){
+    @DisplayName("Test removing a non existing item of pedido")
+    void shouldThrowException_whenTryingToRemoveANonExistingItem(){
         Shake shake = new Shake(new Base(TipoBase.SORVETE),
                 new Fruta(TipoFruta.MORANGO),
                 new Topping(TipoTopping.MEL),
@@ -207,18 +212,16 @@ public class PedidoTest{
         ItemPedido itemPedidoRemovido = new ItemPedido(shakeRemovido, 10);
 
         pedido.adicionarItemPedido(itemPedido);
+        Executable executable = () -> pedido.removeItemPedido(itemPedidoRemovido);
 
-        try{
-            pedido.removeItemPedido(itemPedidoRemovido);
-            fail("Excecao nao encontrada.");
-        }catch(Throwable e){
-            assertEquals("Item nao existe no pedido.", e.getMessage());
-            assertEquals(IllegalArgumentException.class, e.getClass());
-        }
+        ItemNotFoundException itemNotFoundException = assertThrows(ItemNotFoundException.class, executable);
+        assertEquals("Item nao existe no pedido.", itemNotFoundException.getMessage());
+
     }
 
     @Test
-    void test_calcularPedido_comAdicional_properly(){
+    @DisplayName("Test calculating the total price with additional items")
+    void shouldCalculateTheTotalPriceWithAdditionalItems(){
         Shake shake1 = new Shake(new Base(TipoBase.IOGURTE),
                 new Fruta(TipoFruta.BANANA),
                 new Topping(TipoTopping.AVEIA),
@@ -241,7 +244,8 @@ public class PedidoTest{
     }
 
     @Test
-    void test_calcularPedido_semAdicional_properly(){
+    @DisplayName("Test calculating the total price without additional items")
+    void shouldCalculateTheTotalPriceWithoutAdditionalItems(){
         Shake shake1 = new Shake(new Base(TipoBase.IOGURTE),
                 new Fruta(TipoFruta.BANANA),
                 new Topping(TipoTopping.AVEIA),

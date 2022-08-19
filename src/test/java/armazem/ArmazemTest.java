@@ -1,9 +1,10 @@
 package armazem;
 
+import exception.IngredientNotFoundException;
+import exception.InvalidQuantityException;
+import exception.RegisteredIngredientException;
 import ingredientes.*;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.function.Executable;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -11,11 +12,11 @@ import org.junit.jupiter.params.provider.MethodSource;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class ArmazemTest {
     private Armazem armazem;
 
-    @BeforeEach
+    @BeforeAll
     void setup(){
 
         armazem = new Armazem();
@@ -35,17 +36,18 @@ public class ArmazemTest {
         armazem.adicionarQuantidadeDoIngredienteEmEstoque(banana, 10);
         armazem.adicionarQuantidadeDoIngredienteEmEstoque(aveia, 10);
     }
+
     @Test
-    @DisplayName("Throw exception when trying to register an ingredient that is already registered")
+    @DisplayName("Test registering an ingredient that is already registered")
     void shouldThrowException_whenIngredientIsAlreadyRegistered(){
         Executable executable = () -> armazem.cadastrarIngredienteEmEstoque(new Fruta(TipoFruta.BANANA));
-        IllegalArgumentException expectedIllegalArgumentException = assertThrows(IllegalArgumentException.class, executable);
-        assertEquals("Ingrediente já cadastrado", expectedIllegalArgumentException.getMessage());
+        RegisteredIngredientException registeredIngredientException = assertThrows(RegisteredIngredientException.class, executable);
+        assertEquals("Ingrediente já cadastrado", registeredIngredientException.getMessage());
     }
 
     @Test
-    @DisplayName("Register an ingredient that is not registered")
-    void shouldRegisterIngredient_whenItsNotRegistered(){
+    @DisplayName("Test registering an unregistered ingredient")
+    void shouldRegisterIngredient_whenItsUnregistered(){
         Ingrediente ingredient = new Base(TipoBase.LEITE);
         Executable executable = () -> armazem.cadastrarIngredienteEmEstoque(ingredient);
         assertDoesNotThrow(executable);
@@ -53,15 +55,15 @@ public class ArmazemTest {
     }
 
     @Test
-    @DisplayName("Throw exception when trying to unregister an ingredient that is not registered")
-    void shouldThrowException_whenTryToUnregisterAnIngredientThatIsNotRegistered(){
+    @DisplayName("Test unregistering an unregistered ingredient")
+    void shouldThrowException_whenTryToUnregisterAnUnregisteredIngredient(){
         Executable executable = () -> armazem.descadastrarIngredienteEmEstoque(new Base(TipoBase.IOGURTE));
-        IllegalArgumentException expectedIllegalArgumentException = assertThrows(IllegalArgumentException.class, executable);
-        assertEquals("Ingrediente não encontrado", expectedIllegalArgumentException.getMessage());
+        IngredientNotFoundException ingredientNotFoundException = assertThrows(IngredientNotFoundException.class, executable);
+        assertEquals("Ingrediente não encontrado", ingredientNotFoundException.getMessage());
     }
 
     @Test
-    @DisplayName("Unregister an registed ingredient")
+    @DisplayName("Test unregistering an registered ingredient")
     void shouldUnregisterIngredient_whenItsRegistered(){
         Ingrediente ingredient = new Base(TipoBase.SORVETE);
         Executable executable = () -> armazem.descadastrarIngredienteEmEstoque(ingredient);
@@ -70,7 +72,7 @@ public class ArmazemTest {
     }
 
     @Test
-    @DisplayName("Increment quantity from registered ingredient")
+    @DisplayName("Test incrementing quantity from registered ingredient")
     void shouldIncrementIngredientQuantity_whenItsRegistered(){
         Ingrediente ingredient = new Topping(TipoTopping.AVEIA);
         Executable executable = () -> armazem.adicionarQuantidadeDoIngredienteEmEstoque(ingredient, 2);
@@ -79,28 +81,28 @@ public class ArmazemTest {
     }
 
     @Test
-    @DisplayName("Throw exception when incrementing an invalid quantity (above or equals zero)")
-    void shouldThrowException_whenQuantityToIncrementIsEqualOrAboveZero(){
+    @DisplayName("Test incrementing an invalid quantity (below or equals zero)")
+    void shouldThrowException_whenQuantityToIncrementIsEqualOrBelowZero(){
         Ingrediente ingredient = new Topping(TipoTopping.AVEIA);
         Executable executableQuantityEqualsZero = () -> armazem.adicionarQuantidadeDoIngredienteEmEstoque(ingredient, 0);
-        Executable executableQuantityAboveZero = () -> armazem.adicionarQuantidadeDoIngredienteEmEstoque(ingredient,-2);
-        IllegalArgumentException expectedIllegalArgumentException = assertThrows(IllegalArgumentException.class, executableQuantityEqualsZero);
-        assertEquals("Quantidade invalida", expectedIllegalArgumentException.getMessage());
-        expectedIllegalArgumentException = assertThrows(IllegalArgumentException.class, executableQuantityAboveZero);
-        assertEquals("Quantidade invalida", expectedIllegalArgumentException.getMessage());
+        Executable executableQuantityBelowZero = () -> armazem.adicionarQuantidadeDoIngredienteEmEstoque(ingredient,-2);
+        InvalidQuantityException invalidQuantityException = assertThrows(InvalidQuantityException.class, executableQuantityEqualsZero);
+        assertEquals("Quantidade invalida", invalidQuantityException.getMessage());
+        invalidQuantityException = assertThrows(InvalidQuantityException.class, executableQuantityBelowZero);
+        assertEquals("Quantidade invalida", invalidQuantityException.getMessage());
     }
 
     @Test
-    @DisplayName("Throw exception when incrementing an unregistered ingredient")
+    @DisplayName("Test incrementing an unregistered ingredient")
     void shouldThrowException_whenIngredientToIncrementIsNotRegistered(){
         Ingrediente ingredient = new Base(TipoBase.IOGURTE);
         Executable executable = () -> armazem.adicionarQuantidadeDoIngredienteEmEstoque(ingredient, 2);
-        IllegalArgumentException expectedException = assertThrows(IllegalArgumentException.class, executable);
-        assertEquals("Ingrediente não encontrado", expectedException.getMessage());
+        IngredientNotFoundException ingredientNotFoundException = assertThrows(IngredientNotFoundException.class, executable);
+        assertEquals("Ingrediente não encontrado", ingredientNotFoundException.getMessage());
     }
 
     @Test
-    @DisplayName("Decrement quantity from registered ingredient")
+    @DisplayName("Test decrementing quantity from registered ingredient")
     void shouldDecrementIngredientQuantity_whenItsRegistered(){
         Ingrediente ingredient = new Fruta(TipoFruta.BANANA);
         Executable executable = () -> armazem.reduzirQuantidadeDoIngredienteEmEstoque(ingredient, 2);
@@ -109,37 +111,37 @@ public class ArmazemTest {
     }
 
     @Test
-    @DisplayName("Throw exception when decrementing an unregistered ingredient")
+    @DisplayName("Test decrementing an unregistered ingredient")
     void shouldThrowException_whenIngredientToDecrementIsNotRegistered(){
         Ingrediente ingredient = new Topping(TipoTopping.MEL);
         Executable executable = () -> armazem.reduzirQuantidadeDoIngredienteEmEstoque(ingredient, 2);
-        IllegalArgumentException expectedException = assertThrows(IllegalArgumentException.class, executable);
-        assertEquals("Ingrediente não encontrado", expectedException.getMessage());
+        IngredientNotFoundException ingredientNotFoundException = assertThrows(IngredientNotFoundException.class, executable);
+        assertEquals("Ingrediente não encontrado", ingredientNotFoundException.getMessage());
     }
 
     @Test
-    @DisplayName("Throw exception when decrementing an invalid quantity (above or equals zero)")
-    void shouldThrowException_whenQuantityToDecrementIsEqualOrAboveZero(){
+    @DisplayName("Test decrementing with an invalid quantity (below or equals zero)")
+    void shouldThrowException_whenQuantityToDecrementIsEqualOrBelowZero(){
         Ingrediente ingredient = new Topping(TipoTopping.AVEIA);
         Executable executableQuantityEqualsZero = () -> armazem.reduzirQuantidadeDoIngredienteEmEstoque(ingredient, 0);
-        Executable executableQuantityAboveZero = () -> armazem.reduzirQuantidadeDoIngredienteEmEstoque(ingredient,-2);
-        IllegalArgumentException expectedIllegalArgumentException = assertThrows(IllegalArgumentException.class, executableQuantityEqualsZero);
-        assertEquals("Quantidade invalida", expectedIllegalArgumentException.getMessage());
-        expectedIllegalArgumentException = assertThrows(IllegalArgumentException.class, executableQuantityAboveZero);
-        assertEquals("Quantidade invalida", expectedIllegalArgumentException.getMessage());
+        Executable executableQuantityBelowZero = () -> armazem.reduzirQuantidadeDoIngredienteEmEstoque(ingredient,-2);
+        InvalidQuantityException invalidQuantityException = assertThrows(InvalidQuantityException.class, executableQuantityEqualsZero);
+        assertEquals("Quantidade invalida", invalidQuantityException.getMessage());
+        invalidQuantityException = assertThrows(InvalidQuantityException.class, executableQuantityBelowZero);
+        assertEquals("Quantidade invalida", invalidQuantityException.getMessage());
     }
 
     @Test
-    @DisplayName("Throw exception when decrementing an invalid quantity (bigger than stock)")
+    @DisplayName("Test decrementing with an invalid quantity (bigger than stock)")
     void shouldThrowException_whenQuantityToDecrementIsBiggerThanStock(){
         Ingrediente ingredient = new Topping(TipoTopping.AVEIA);
         Executable executableQuantityBiggerThanStock= () -> armazem.reduzirQuantidadeDoIngredienteEmEstoque(ingredient,14);
-        IllegalArgumentException expectedIllegalArgumentException = assertThrows(IllegalArgumentException.class, executableQuantityBiggerThanStock);
-        assertEquals("Quantidade invalida", expectedIllegalArgumentException.getMessage());
+        InvalidQuantityException invalidQuantityException = assertThrows(InvalidQuantityException.class, executableQuantityBiggerThanStock);
+        assertEquals("Quantidade invalida", invalidQuantityException.getMessage());
     }
 
     @Test
-    @DisplayName("Return quantity when ingredient is registered")
+    @DisplayName("Test searching an existing ingredient's quantity")
     void shouldReturnQuantity_whenIngredientIsRegistered(){
         Ingrediente ingredient = new Fruta(TipoFruta.ABACATE);
         Executable executable = () -> armazem.consultarQuantidadeDoIngredienteEmEstoque(ingredient);
@@ -147,19 +149,18 @@ public class ArmazemTest {
         assertTrue(armazem.consultarQuantidadeDoIngredienteEmEstoque(ingredient) == 10);
     }
 
-    @ParameterizedTest(name = "Test search for quantity when {0} isn't registered")
-    @MethodSource("getNonRegisteredIngredientsList")
-    @DisplayName("Throw exception in searching a non existing ingredient's quantity")
+    @ParameterizedTest(name = "Test searching for quantity when {0} isn't registered")
+    @MethodSource("getNonRegisteredIngredient")
+    @DisplayName("Test searching a non existing ingredient's quantity")
     void showThrowException_whenReturningQuantityOfIngredientThatDoesNotExists(Ingrediente ingredient){
         Executable executable = () -> armazem.consultarQuantidadeDoIngredienteEmEstoque(ingredient);
-        IllegalArgumentException expectedException = assertThrows(IllegalArgumentException.class, executable);
-        assertEquals("Ingrediente não encontrado", expectedException.getMessage());
+        IngredientNotFoundException ingredientNotFoundException = assertThrows(IngredientNotFoundException.class, executable);
+        assertEquals("Ingrediente não encontrado", ingredientNotFoundException.getMessage());
     }
 
-    private static List<Ingrediente> getNonRegisteredIngredientsList(){
+    private static List<Ingrediente> getNonRegisteredIngredient(){
         return List.of(
                 new Base(TipoBase.IOGURTE),
-                new Base(TipoBase.LEITE),
                 new Fruta(TipoFruta.MORANGO),
                 new Topping(TipoTopping.CHOCOLATE)
         );

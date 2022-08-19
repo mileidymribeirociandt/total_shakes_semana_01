@@ -5,24 +5,9 @@ import java.util.List;
 import java.util.Optional;
 
 public enum TipoTamanho {
-    P(0.0, 'P'){
-        @Override
-        public double getPreco(double precoBase) {
-            return precoBase;
-        }
-    },
-    M(0.30, 'M'){
-        @Override
-        public double getPreco(double precoBase) {
-            return precoBase + (precoBase * M.multiplicador);
-        }
-    },
-    G(0.50, 'G'){
-        @Override
-        public double getPreco(double precoBase) {
-            return precoBase + (precoBase * G.multiplicador);
-        }
-    };
+    P(1.0, 'P'),
+    M(1.30, 'M'),
+    G(1.50, 'G');
     public final double multiplicador;
     public final char charTamanho;
 
@@ -31,7 +16,14 @@ public enum TipoTamanho {
         this.charTamanho = charTamanho;
     }
 
-    public abstract double getPreco(double precoBase);
+    public static Double getPreco(TipoTamanho tamanho, double precoBase){
+        for(TipoTamanho tipoTamanho : values()){
+            if(tipoTamanho.equals(tamanho)){
+                return precoBase * tipoTamanho.multiplicador;
+            }
+        }
+        return null;
+    }
     public static TipoTamanho getTipoTamanho(char tamanho){
         Optional<TipoTamanho> optTipoTamanho = Arrays.stream(values())
                 .filter(tipoTamanho -> tipoTamanho.charTamanho == tamanho)
