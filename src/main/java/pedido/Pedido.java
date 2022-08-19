@@ -1,6 +1,9 @@
 package pedido;
 
+import exception.IngredientNotFoundException;
+import exception.ItemNotFoundException;
 import ingredientes.Adicional;
+import produto.TipoTamanho;
 
 import java.io.*;
 import java.util.List;
@@ -30,9 +33,9 @@ public class Pedido implements Serializable {
     }
 
     public double calcularTotal(Cardapio cardapio) {
-        double total = 0;
+        var total = 0;
         total += itens.stream().map(itemPedido -> {
-            double subTotal = itemPedido.getShake().getTipoTamanho().getPreco(cardapio.buscarPreco(itemPedido.getShake().getBase()));
+            double subTotal = TipoTamanho.getPreco(itemPedido.getShake().getTipoTamanho(), cardapio.buscarPreco(itemPedido.getShake().getBase()));
             if (itemPedido.getShake().getAdicionais() == null || itemPedido.getShake().getAdicionais().isEmpty()) {
                 return subTotal * itemPedido.getQuantidade();
             }
@@ -48,43 +51,48 @@ public class Pedido implements Serializable {
         if (itens == null) {
             throw new NullPointerException("Can't add new ItemPedido to null list");
         }
-        itens.stream().filter(itemPedido -> itemPedido.equals(itemPedidoAdicionado)).findFirst().ifPresentOrElse(itemPedido -> itemPedido.updateQuantidade(itemPedidoAdicionado.getQuantidade()), () -> {
-            itens.add(itemPedidoAdicionado);
-        });
+        itens.stream().filter(itemPedido -> itemPedido.equals(itemPedidoAdicionado))
+                .findFirst()
+                .ifPresentOrElse(
+                        itemPedido -> itemPedido.updateQuantidade(itemPedidoAdicionado.getQuantidade()),
+                        () -> {itens.add(itemPedidoAdicionado);});
     }
 
     public boolean removeItemPedido(ItemPedido itemPedidoRemovido) {
-        itens.stream().filter(itemPedido -> itemPedido.equals(itemPedidoRemovido)).findFirst().ifPresentOrElse(itemPedido -> {
-            itemPedido.updateQuantidade(-1);
-            if (itemPedido.getQuantidade() <= 0) {
-                itens.remove(itemPedidoRemovido);
-            }
-        }, () -> {
-            throw new IllegalArgumentException("Item nao existe no pedido.");
-        });
+        itens.stream()
+                .filter(itemPedido -> itemPedido.equals(itemPedidoRemovido))
+                .findFirst()
+                .ifPresentOrElse(
+                    itemPedido -> {
+                        itemPedido.updateQuantidade(-1);
+                        if (itemPedido.getQuantidade() <= 0) {
+                            itens.remove(itemPedidoRemovido);
+                        }
+                    },
+                    () -> {
+                        throw new ItemNotFoundException("Item nao existe no pedido.");
+                    }
+                );
         return true;
     }
 
-    public void serializarPedido(){
-        try(FileOutputStream fileOutputStream = new FileOutputStream("pedido"+id+".txt");
-            ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);){
+    public void serializarPedido() {
+        try (FileOutputStream fileOutputStream = new FileOutputStream("pedido" + id + ".txt");
+             ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);) {
             objectOutputStream.writeObject(this);
-        }
-        catch (IOException exception){
+        } catch (IOException exception) {
             exception.printStackTrace();
         }
     }
 
-    public static Pedido desserializarPedido(int id){
+    public static Pedido desserializarPedido(int id) {
         Pedido pedido = null;
-        try(FileInputStream fileInputStream = new FileInputStream("pedido"+id+".txt");
-            ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);){
-            pedido = (Pedido)objectInputStream.readObject();
-        }
-        catch (IOException exception){
+        try (FileInputStream fileInputStream = new FileInputStream("pedido" + id + ".txt");
+             ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);) {
+            pedido = (Pedido) objectInputStream.readObject();
+        } catch (IOException exception) {
             exception.printStackTrace();
-        }
-        catch (ClassNotFoundException exception){
+        } catch (ClassNotFoundException exception) {
             exception.printStackTrace();
         }
         return pedido;

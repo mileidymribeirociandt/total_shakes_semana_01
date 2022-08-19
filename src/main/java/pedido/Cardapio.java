@@ -1,5 +1,7 @@
 package pedido;
 
+import exception.IngredientNotFoundException;
+import exception.InvalidPriceException;
 import ingredientes.Ingrediente;
 
 import java.util.TreeMap;
@@ -17,21 +19,21 @@ public class Cardapio {
 
     public void adicionarIngrediente(Ingrediente ingrediente,Double preco){
         if(preco <= 0){
-            throw new IllegalArgumentException("Preco invalido.");
+            throw new InvalidPriceException("Preco invalido.");
         }
         precos.put(ingrediente, preco);
     }
 
     public boolean atualizarIngrediente(Ingrediente ingrediente,Double preco){
         if(preco <= 0){
-            throw new IllegalArgumentException("Preco invalido.");
+            throw new InvalidPriceException("Preco invalido.");
         }
         if(precos.keySet().contains(ingrediente)){
             precos.put(ingrediente, preco);
             return true;
         }
         else {
-            throw new IllegalArgumentException("Ingrediente nao existe no cardapio.");
+            throw new IngredientNotFoundException("Ingrediente nao existe no cardapio.");
         }
     }
 
@@ -41,7 +43,7 @@ public class Cardapio {
             return true;
         }
         else {
-            throw new IllegalArgumentException("Ingrediente nao existe no cardapio.");
+            throw new IngredientNotFoundException("Ingrediente nao existe no cardapio.");
         }
     }
 
@@ -50,13 +52,17 @@ public class Cardapio {
             return precos.get(ingrediente);
         }
         else {
-            throw new IllegalArgumentException("Ingrediente nao existe no cardapio.");
+            throw new IngredientNotFoundException("Ingrediente nao existe no cardapio.");
         }
     }
 
     @Override
     public String toString() {
         return this.precos.toString();
+    }
+
+    public boolean isAvailable(Ingrediente ingredient) {
+        return precos.containsKey(ingredient);
     }
 
 }
